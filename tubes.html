@@ -1,0 +1,96 @@
+<!-- 
+
+    Output from chatGPT 3.5, when I asked it:
+
+      Generate javascript embedded in html that will render a 3d tube with a diameter of 100 and thickness of 10. Rotate the shape through the x, y and z axes. Put a point light source behind the camera and shade the scene appropriately.
+
+    The tube came out too small, so I asked it to make it ten times bigger. It just suggested I alter the radius in the code, 
+    so that's what I did.
+    I then asked it to modify the code to add a second tube, but rotating 90 degress out of phase.
+    It generated code that added a mesh2 but used the same material and geometry.
+    Since I wanted the second tube to not intersect the first, I made the changes it generated manually.
+    That way I could alter the radius so it went around the outside of the first tube.
+    I also added a material2 and geometry2 but for now, left them the same as for the first tube.
+    For the 3rd tube, I repeated the process for adding the second ring.
+    I also changed the rotation of the 3rd to be pi radians.
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Three.js Two Tubes Example</title>
+  <style>
+    body { margin: 0; }
+    canvas { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Create scene
+    const scene = new THREE.Scene();
+
+    // Create camera
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 500;
+
+    // Create renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create geometry
+    const radius = 100;
+    const tubeRadius = 5;
+    const radialSegments = 32;
+    const tubularSegments = 100;
+    const geometry1 = new THREE.TorusBufferGeometry(radius, tubeRadius, radialSegments, tubularSegments);
+    const geometry2 = new THREE.TorusBufferGeometry(radius+tubeRadius, tubeRadius, radialSegments, tubularSegments);
+    const geometry3 = new THREE.TorusBufferGeometry(radius+tubeRadius*2, tubeRadius, radialSegments, tubularSegments);
+
+    // Create material
+    const material1 = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
+    const material2 = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
+    const material3 = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
+
+    // Create mesh 1
+    const mesh1 = new THREE.Mesh(geometry1, material1);
+    scene.add(mesh1);
+
+    // Create mesh 2
+    const mesh2 = new THREE.Mesh(geometry2, material2);
+    mesh2.rotation.x = Math.PI / 2;
+    scene.add(mesh2);
+
+    // Create mesh 3
+    const mesh3 = new THREE.Mesh(geometry3, material3);
+    mesh3.rotation.x = Math.PI / 3;
+    scene.add(mesh3);
+
+    // Create point light
+    const light = new THREE.PointLight(0xffffff, 1, 1000);
+    light.position.set(0, 0, 500);
+    scene.add(light);
+
+    // Render loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      mesh1.rotation.x += 0.01;
+      mesh1.rotation.y += 0.01;
+      mesh1.rotation.z += 0.01;
+
+      mesh2.rotation.x += 0.01;
+      mesh2.rotation.y += 0.01;
+      mesh2.rotation.z += 0.01;
+
+      mesh3.rotation.x += 0.01;
+      mesh3.rotation.y += 0.01;
+      mesh3.rotation.z += 0.01;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
